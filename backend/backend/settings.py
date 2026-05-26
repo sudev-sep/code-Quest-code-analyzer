@@ -73,6 +73,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
@@ -119,3 +122,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+
+from dotenv import load_dotenv
+import os   
+load_dotenv()
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')

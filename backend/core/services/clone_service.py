@@ -28,9 +28,22 @@ def clone_repository(repo_id):
         repo.save()
 
 
-        # ← NEW: automatically start parsing right after cloning
+         # Step 1: Parse all files into chunks
         from core.services.parser_services import parse_repository
         parse_repository(repo_id)
+
+        # Step 2: Convert chunks into embeddings and store in ChromaDB
+        from core.services.embedding_service import embed_repository
+        embed_repository(repo_id)
+
+        # All done!
+        repo.status = 'ready'
+        repo.save()
+
+        # All done!
+        repo.status = 'ready'
+        repo.save()
+
 
         repo.status = 'ready'
         repo.save()
