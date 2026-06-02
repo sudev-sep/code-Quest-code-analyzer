@@ -1,21 +1,31 @@
-import chromadb
 import os
-from sentence_transformers import SentenceTransformer
 from core.models import FileChunk, Repository
 
-# Load the AI model that converts text → numbers
-# This downloads once and is cached after that (~90MB)
-print("Loading embedding model...")
-model = SentenceTransformer('all-MiniLM-L6-v2')
-print("Model ready!")
-
-# Set up ChromaDB — this is our vector database
-# It saves to a folder called 'chromadb_store' in your project
 CHROMA_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
     'chromadb_store'
 )
-chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
+
+_embedding_model = None
+_chroma_client = None
+
+
+def get_embedding_model():
+    global _embedding_model
+    if _embedding_model is None:
+        from sentence_transformers import SentenceTransformer
+        print("Loading embedding model...")
+        _embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+        print("Model ready!")
+    return _embedding_model
+
+
+def get_chroma_client():
+    global _chroma_client
+    if _chroma_client is None:
+        import chromadb
+        _chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
+    return _chroma_client
 
 
 def get_collection(repo_id):
@@ -23,7 +33,7 @@ def get_collection(repo_id):
     Each repo gets its own collection in ChromaDB.
     Think of a collection like a separate drawer in a filing cabinet.
     """
-    return chroma_client.get_or_create_collection(
+    return get_chroma_client().get_or_create_collection(
         name=f"repo_{repo_id}",
         metadata={"hnsw:space": "cosine"}  # cosine = best for text similarity
     )
@@ -48,9 +58,9 @@ def embed_repository(repo_id):
 
     # Delete old embeddings if re-running
     try:
-        chroma_client.delete_collection(f"repo_{repo_id}")
+        get_chroma_client().delete_collection(f"repo_{repo_id}")
         collection = get_collection(repo_id)
-    except:
+    except Exception:
         pass
 
     # Process in batches of 50 — embedding all 260 at once would use too much memory
@@ -68,7 +78,7 @@ def embed_repository(repo_id):
         # THIS IS THE MAGIC LINE
         # model.encode() converts each chunk of text into a list of numbers
         # e.g. "payment logic" → [0.23, 0.87, 0.12, 0.45, ...]
-        embeddings = model.encode(texts, show_progress_bar=False)
+        embeddings = get_embedding_model().encode(texts, show_progress_bar=False)
 
         # Save to ChromaDB
         # We need: the text, the numbers, and a unique ID for each chunk
@@ -100,7 +110,7 @@ def search_similar_chunks(repo_id, query, top_k=5):
     collection = get_collection(repo_id)
 
     # Convert the question to numbers
-    query_embedding = model.encode([query]).tolist()
+    query_embedding = get_embedding_model().encode([query]).tolist()
 
     # Search ChromaDB for the closest matches
     results = collection.query(

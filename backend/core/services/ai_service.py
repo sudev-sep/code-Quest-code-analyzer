@@ -1,9 +1,11 @@
-from google import genai
 from django.conf import settings
 from core.services.embedding_service import search_similar_chunks
 
-# Connect to Gemini API using the new SDK
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+def get_gemini_client():
+    from google import genai
+    return genai.Client(api_key=settings.GEMINI_API_KEY)
+
 
 # I renamed this to ask_gemini to match your views.py!
 def answer_question(repo_id, question):
@@ -55,7 +57,8 @@ IMPORTANT FORMATTING RULES:
 """
 
     print("Sending to Gemini API...")
-    
+    client = get_gemini_client()
+
     # Using the new client.models.generate_content syntax
     # gemini-2.5-flash is the recommended default for most text and coding tasks
     response = client.models.generate_content(
