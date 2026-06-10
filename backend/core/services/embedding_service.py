@@ -129,3 +129,15 @@ def search_similar_chunks(repo_id, query, top_k=5):
             })
 
     return chunks
+
+
+
+def delete_collection(repo_id):
+    """
+    Deletes the ChromaDB collection for a repo when the repo is deleted.
+    """
+    try:
+        get_chroma_client().delete_collection(f"repo_{repo_id}")
+        print(f"Deleted ChromaDB collection for repo {repo_id}")
+    except Exception as e:
+        print(f"Could not delete ChromaDB collection: {e}")
