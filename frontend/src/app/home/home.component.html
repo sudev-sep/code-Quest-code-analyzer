@@ -1,0 +1,66 @@
+<div class="page-wrapper">
+
+  <app-header></app-header>
+
+  <div class="container">
+
+    <div class="hero">
+      <h1>Code<b>Q</b>uest</h1>
+      <p>Paste a GitHub URL and ask questions about any codebase in plain English</p>
+    </div>
+
+    <div class="card">
+      <input
+        type="text"
+        class="input"
+        [(ngModel)]="githubUrl"
+        placeholder="https://github.com/username/repo"
+        (keyup.enter)="indexRepo()" />
+
+      <button
+        class="btn-primary"
+        (click)="indexRepo()"
+        [disabled]="isLoading || !githubUrl.trim()">
+        {{ isLoading ? 'Indexing...' : 'Index Repository' }}
+      </button>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+    </div>
+
+    <div class="repos-section" *ngIf="repositories.length > 0">
+
+      <div class="repos-header">
+    <h2>Indexed Repositories</h2>
+    <button class="search-toggle" (click)="toggleSearch()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="search-bar" *ngIf="showSearch">
+    <input
+      type="text"
+      class="input search-input"
+      [(ngModel)]="searchQuery"
+      placeholder="Search repositories..."
+      autofocus />
+  </div>
+
+      <div class="repo-card"
+           *ngFor="let repo of filteredRepos">
+        <div class="repo-info" (click)="openChat(repo)">
+          <h3>{{ repo.name }}</h3>
+          <p>{{ repo.github_url }}</p>
+        </div>
+        <span class="status {{ repo.status }}">{{ repo.status }}</span>
+        <div>
+          <button class="btn btn-danger btn-sm btn-rounded" (click)="deleteRepo(repo)">delete</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

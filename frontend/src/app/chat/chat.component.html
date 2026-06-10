@@ -1,0 +1,60 @@
+
+<app-header></app-header>
+
+<div class="chat-wrapper">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <button class="back-btn" (click)="goHome()">← Back</button>
+    <span class="repo-name">{{ repoName }}</span>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages">
+    <div *ngFor="let message of messages"
+         class="message"
+         [class.user]="message.role === 'user'"
+         [class.assistant]="message.role === 'assistant'">
+
+      <div class="bubble">
+           <div [innerHTML]="message.htmlContent"></div>
+
+        <!-- Source files -->
+        <div class="sources" *ngIf="message.sources && message.sources.length > 0">
+          <p class="sources-label">Sources:</p>
+          <span class="source-tag" *ngFor="let source of message.sources">
+            {{ source }}
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Loading indicator -->
+    <div class="message assistant" *ngIf="isLoading">
+      <div class="bubble loading">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input area -->
+  <div class="input-area">
+    <input
+      type="text"
+      class="chat-input"
+      [(ngModel)]="question"
+      placeholder="Ask anything about this codebase..."
+      (keyup.enter)="askQuestion()"
+      [disabled]="isLoading" />
+    <button
+      class="send-btn"
+      (click)="askQuestion()"
+      [disabled]="isLoading || !question.trim()">
+      Send
+    </button>
+  </div>
+
+</div>

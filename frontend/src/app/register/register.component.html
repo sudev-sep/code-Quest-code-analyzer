@@ -1,0 +1,40 @@
+<div class="register-wrapper">
+  <form class="register-card" (ngSubmit)="onSubmit()">
+    <h1>Code<b>Q</b>uest</h1>
+
+    <div class="form-group">
+      <input
+        type="text"
+        id="username"
+        [(ngModel)]="registerData.username"
+        name="username"
+        placeholder="Username"
+        required
+      >
+    </div>
+
+    <div class="form-group">
+      <input
+        type="email"
+        id="email"
+        [(ngModel)]="registerData.email"
+        name="email"
+        placeholder="Email"
+        required
+      >
+    </div>
+
+    <div class="form-group">
+      <input
+        type="password"
+        id="password"
+        [(ngModel)]="registerData.password"
+        name="password"
+        placeholder="Password"
+        required
+      >
+    </div>
+
+    <button type="submit">Create Account</button>
+  </form>
+</div>
