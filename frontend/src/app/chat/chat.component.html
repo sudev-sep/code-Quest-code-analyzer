@@ -1,15 +1,15 @@
+<div class="chat-page-wrapper">
+  <app-header></app-header>
+  <div class="chat-wrapper">
 
-<app-header></app-header>
 
 <div class="chat-wrapper">
 
-  <!-- Top bar -->
   <div class="topbar">
     <button class="back-btn" (click)="goHome()">← Back</button>
     <span class="repo-name">{{ repoName }}</span>
   </div>
 
-  <!-- Messages -->
   <div class="messages">
     <div *ngFor="let message of messages"
          class="message"
@@ -30,7 +30,6 @@
 
     </div>
 
-    <!-- Loading indicator -->
     <div class="message assistant" *ngIf="isLoading">
       <div class="bubble loading">
         <span></span>
@@ -40,7 +39,6 @@
     </div>
   </div>
 
-  <!-- Input area -->
   <div class="input-area">
     <input
       type="text"
@@ -57,4 +55,5 @@
     </button>
   </div>
 
+</div>  </div>
 </div>
