@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
 
-  private API_URL = 'http://127.0.0.1:8000/api';
+  private API_URL = 'https://code-quest-code-analyzer-production.up.railway.app/api';
   private isBrowser: boolean;
 
   constructor(

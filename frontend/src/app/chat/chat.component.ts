@@ -38,17 +38,16 @@ export class ChatComponent implements OnInit {
     this.repoId = Number(this.route.snapshot.paramMap.get('repoId'));
     this.repoName = this.route.snapshot.paramMap.get('repoName') || 'Repository';
 
-    // Welcome message
     const welcomeText = `Hi! I've indexed **${this.repoName}**. Ask me anything about this codebase — like "where is the login logic?" or "how does the payment flow work?"`;
     
     this.messages.push({
       role: 'assistant',
       text: welcomeText,
-      htmlContent: await marked.parse(welcomeText) // <-- 4. Parse the welcome message
+      htmlContent: await marked.parse(welcomeText) 
     });
   }
 
-  async askQuestion() { // <-- 5. Make askQuestion async
+  async askQuestion() { 
     if (!this.question.trim() || this.isLoading) return;
 
     const userQuestion = this.question.trim();
@@ -58,38 +57,36 @@ export class ChatComponent implements OnInit {
     this.messages.push({
       role: 'user',
       text: userQuestion,
-      htmlContent: await marked.parse(userQuestion) // <-- 6. Parse user message
+      htmlContent: await marked.parse(userQuestion) 
     });
 
     this.isLoading = true;
 
     this.apiService.askQuestion(this.repoId, userQuestion).subscribe({
-      next: async (response) => { // <-- 7. Make the next callback async
+      next: async (response) => { 
         this.isLoading = false;
         
         this.messages.push({
           role: 'assistant',
           text: response.answer,
-          htmlContent: await marked.parse(response.answer), // <-- 8. Parse AI response
+          htmlContent: await marked.parse(response.answer), 
           sources: response.sources
         });
 
-        // Scroll to bottom after response
         setTimeout(() => this.scrollToBottom(), 100);
       },
-      error: async () => { // <-- 9. Make the error callback async
+      error: async () => { 
         this.isLoading = false;
         const errorText = 'Sorry, something went wrong. Please try again.';
         
         this.messages.push({
           role: 'assistant',
           text: errorText,
-          htmlContent: await marked.parse(errorText) // <-- 10. Parse error message
+          htmlContent: await marked.parse(errorText) 
         });
       }
     });
 
-    // Scroll to bottom after user message
     setTimeout(() => this.scrollToBottom(), 100);
   }
 
