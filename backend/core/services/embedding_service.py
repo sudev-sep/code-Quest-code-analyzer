@@ -20,7 +20,7 @@ def get_gemini_embedding(texts, task_type="retrieval_document"):
     embeddings = []
     for text in texts:
         result = genai.embed_content(
-            model="models/text-embedding-001",
+            model="models/gemini-embedding-2",
             content=text,
             task_type=task_type
         )
