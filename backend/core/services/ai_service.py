@@ -7,7 +7,6 @@ def get_gemini_client():
     return genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-# I renamed this to ask_gemini to match your views.py!
 def answer_question(repo_id, question):
     """
     This is the full Q&A pipeline in 3 steps:
@@ -26,14 +25,12 @@ def answer_question(repo_id, question):
             'sources': []
         }
 
-    # STEP 2: Build the context string
     context = ""
     for i, chunk in enumerate(relevant_chunks):
         context += f"\n--- Chunk {i+1} from {chunk['file_path']} ---\n"
         context += chunk['content']
         context += "\n"
 
-    # STEP 3: Build the prompt and ask Gemini
     prompt = f"""You are a helpful code assistant. A developer is asking a question about a codebase.
 
 I have found the most relevant parts of the codebase for their question. Use ONLY this code to answer.
