@@ -19,7 +19,8 @@ def answer_question(repo_id, question):
     if not relevant_chunks:
         return {
             'answer': 'I could not find any relevant code for your question.',
-            'sources': []
+            'sources': [],
+            'chunks_used': 0 
         }
 
     context = ""
