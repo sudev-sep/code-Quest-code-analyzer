@@ -53,7 +53,7 @@ IMPORTANT FORMATTING RULES:
     client = get_gemini_client()
 
     response = client.models.generate_content(
-        model='gemini-2.5-flash',  # ✅ fixed: gemini-3.5-flash doesn't exist
+        model='gemini-3.5-flash', 
         contents=prompt,
     )
 
