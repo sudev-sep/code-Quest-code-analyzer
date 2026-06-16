@@ -1,11 +1,9 @@
 from django.conf import settings
 from core.services.embedding_service import search_similar_chunks
 
-
 def get_gemini_client():
     from google import genai
     return genai.Client(api_key=settings.GEMINI_API_KEY)
-
 
 def answer_question(repo_id, question):
     """
@@ -14,7 +12,6 @@ def answer_question(repo_id, question):
     Step 2 - Build a prompt with those chunks as context
     Step 3 - Ask Gemini to answer based only on that context
     """
-
     # STEP 1: Find the most relevant code chunks
     print(f"\nSearching for: {question}")
     relevant_chunks = search_similar_chunks(repo_id, question, top_k=5)
@@ -32,7 +29,6 @@ def answer_question(repo_id, question):
         context += "\n"
 
     prompt = f"""You are a helpful code assistant. A developer is asking a question about a codebase.
-
 I have found the most relevant parts of the codebase for their question. Use ONLY this code to answer.
 
 RELEVANT CODE:
@@ -56,18 +52,13 @@ IMPORTANT FORMATTING RULES:
     print("Sending to Gemini API...")
     client = get_gemini_client()
 
-    # Using the new client.models.generate_content syntax
-    # gemini-2.5-flash is the recommended default for most text and coding tasks
     response = client.models.generate_content(
-        model='gemini-3.5-flash',
+        model='gemini-2.5-flash',  # ✅ fixed: gemini-3.5-flash doesn't exist
         contents=prompt,
     )
 
     answer = response.text
-
-    # Collect the source files so we can show them to the user
     sources = list(set([chunk['file_path'] for chunk in relevant_chunks]))
-
     print("Gemini answered!")
 
     return {
