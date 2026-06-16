@@ -1,5 +1,6 @@
 import os
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from core.models import FileChunk, Repository
 
 CHROMA_PATH = os.path.join(
