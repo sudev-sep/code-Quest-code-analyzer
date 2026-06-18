@@ -14,7 +14,7 @@ def get_gemini_embedding(texts, task_type="retrieval_document"):
     embeddings = []
     for text in texts:
         result = client.models.embed_content(
-             model="models/gemini-embedding-2",
+             model="models/gemini-embedding-001",
             contents=text,
             config=types.EmbedContentConfig(task_type=task_type)
         )
