@@ -1,11 +1,12 @@
 from urllib import request
 
+from celery.result import AsyncResult
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import Repository,FileChunk
+from .models import Repository, FileChunk
 from .services.clone_service import clone_repository
-from .services.ai_service import answer_question
+from .tasks import answer_question_task
 from core.services.embedding_service import delete_collection, search_similar_chunks
 
 
@@ -86,8 +87,6 @@ class QuestionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, repo_id):
-        from .services.ai_service import answer_question
-
         question = request.data.get('question')
 
         if not question:
@@ -103,19 +102,36 @@ class QuestionView(APIView):
                 'error': f'Repository is not ready yet. Current status: {repo.status}'
             }, status=400)
 
-        try:
-            result = answer_question(repo_id, question)
+        # Dispatch to Celery — returns immediately, freeing the gunicorn worker
+        task = answer_question_task.delay(repo_id, question)
+        return Response({
+            'task_id': task.id,
+            'status': 'processing',
+            'message': 'Your question is being processed. Poll the GET endpoint with this task_id for results.'
+        }, status=202)
+
+    def get(self, request, repo_id):
+        # Poll for task results by task_id query param
+        task_id = request.query_params.get('task_id')
+        if not task_id:
+            return Response({'error': 'task_id is required'}, status=400)
+
+        task_result = AsyncResult(task_id)
+        if task_result.state == 'PENDING':
+            return Response({'status': 'processing'}, status=202)
+        elif task_result.state == 'SUCCESS':
             return Response({
-                'question': question,
-                'answer': result['answer'],
-                'sources': result['sources'],
-                'chunks_used': result['chunks_used']
+                'status': 'completed',
+                'result': task_result.result
             })
-        except Exception as e:
+        elif task_result.state == 'FAILURE':
             return Response({
-                'error': 'AI service is temporarily unavailable. Please try again in a moment.',
-                'detail': str(e)
-            }, status=503)
+                'status': 'failed',
+                'error': str(task_result.info)
+            }, status=500)
+        else:
+            # RETRY, STARTED, etc.
+            return Response({'status': task_result.state.lower()}, status=202)
         
 
 class RepositoryDeleteView(APIView):
